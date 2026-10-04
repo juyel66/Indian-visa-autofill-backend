@@ -1,33 +1,20 @@
 {
-  "name": "visa-autofill-backend",
+  "name": "visa-autofill-monorepo",
   "version": "1.0.0",
-  "description": "Backend foundation for Visa Autofill system",
-  "main": "dist/server.js",
+  "description": "Visa Autofill fullstack monorepo",
+  "private": true,
   "scripts": {
-    "dev": "tsx watch src/server.ts",
-    "build": "tsc",
-    "start": "node dist/server.js",
-    "prisma:generate": "prisma generate",
-    "prisma:migrate": "prisma migrate dev"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "dependencies": {
-    "@prisma/client": "^6.4.1",
-    "compression": "^1.8.0",
-    "cors": "^2.8.5",
-    "dotenv": "^16.4.7",
-    "express": "^4.21.2",
-    "helmet": "^8.0.0"
+    "dev": "concurrently -k \"npm run dev:backend\" \"npm run dev:frontend\"",
+    "clean:ports": "npx kill-port 3000 8000",
+    "dev:backend": "npm --prefix backend run dev",
+    "dev:frontend": "npm --prefix frontend run dev",
+    "build": "npm run build:backend && npm run build:frontend",
+    "build:backend": "npm --prefix backend run build",
+    "build:frontend": "npm --prefix frontend run build",
+    "start:backend": "npm --prefix backend run start",
+    "start:frontend": "npm --prefix frontend run start"
   },
   "devDependencies": {
-    "@types/compression": "^1.7.5",
-    "@types/cors": "^2.8.17",
-    "@types/express": "^5.0.0",
-    "@types/node": "^22.13.9",
-    "prisma": "^6.4.1",
-    "tsx": "^4.19.3",
-    "typescript": "^5.8.2"
+    "concurrently": "^9.1.2"
   }
 }
