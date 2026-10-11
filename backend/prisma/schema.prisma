@@ -49,7 +49,12 @@ model Application {
   originalPdf         Bytes?
   originalPdfFileName String?
   originalPdfMimeType String?
-  applicantName       String?
+  applicant_photo            Bytes?
+  applicant_photo_name       String?
+  applicant_photo_mime       String?
+  applicant_photo_size       Int?
+  applicant_photo_updated_at DateTime?
+  applicantName              String?
   passportNumber      String?
   status              String?  @default("draft")
   createdAt           DateTime @default(now())
