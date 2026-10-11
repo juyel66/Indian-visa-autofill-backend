@@ -258,6 +258,8 @@ export async function getAdminApplicationById(req: AuthenticatedRequest, res: Re
 
     const names = extractApplicantNames(app.applicationData, app.applicantName);
 
+    const hasPhoto = Boolean(app.applicant_photo_name || app.applicant_photo_mime);
+
     res.status(200).json({
       success: true,
       data: {
@@ -269,6 +271,16 @@ export async function getAdminApplicationById(req: AuthenticatedRequest, res: Re
         status: app.status,
         originalPdfFileName: app.originalPdfFileName,
         originalPdfMimeType: app.originalPdfMimeType,
+        applicant_photo_name: app.applicant_photo_name,
+        applicant_photo_mime: app.applicant_photo_mime,
+        applicantPhoto: {
+          exists: hasPhoto,
+          url: hasPhoto ? `/api/admin/applications/${app.id}/photo` : null,
+          fileName: app.applicant_photo_name || null,
+          mimeType: app.applicant_photo_mime || null,
+          size: app.applicant_photo_size ?? (app.applicant_photo ? app.applicant_photo.length : null),
+          updatedAt: app.applicant_photo_updated_at ? app.applicant_photo_updated_at.toISOString() : null,
+        },
         applicationData: app.applicationData,
         createdAt: app.createdAt,
         updatedAt: app.updatedAt,
@@ -371,6 +383,52 @@ export async function downloadAdminApplicationPdf(req: AuthenticatedRequest, res
     res.status(500).json({
       success: false,
       message: formatErrorMessage('Failed to stream PDF', error),
+    });
+  }
+}
+
+/**
+ * GET /api/admin/applications/:id/photo
+ * Streams applicant photo bytes for any application to authorized staff.
+ */
+export async function downloadAdminApplicationPhoto(req: AuthenticatedRequest, res: Response): Promise<void> {
+  try {
+    const id = String(req.params.id);
+
+    const application = await prisma.application.findUnique({
+      where: { id },
+      select: {
+        applicant_photo: true,
+        applicant_photo_name: true,
+        applicant_photo_mime: true,
+        applicant_photo_size: true,
+      },
+    });
+
+    if (!application || !application.applicant_photo) {
+      res.status(404).json({
+        success: false,
+        message: 'Applicant photo not found for this application.',
+      });
+      return;
+    }
+
+    const fileName = application.applicant_photo_name || 'applicant_photo.jpg';
+    const mimeType = application.applicant_photo_mime || 'image/jpeg';
+    const fileSize = application.applicant_photo_size || application.applicant_photo.length;
+
+    res.setHeader('Content-Type', mimeType);
+    res.setHeader('Content-Disposition', `inline; filename="${encodeURIComponent(fileName)}"`);
+    res.setHeader('Content-Length', fileSize);
+    res.setHeader('Cache-Control', 'private, no-cache, no-store, must-revalidate');
+    res.setHeader('Pragma', 'no-cache');
+    res.setHeader('Expires', '0');
+    res.end(Buffer.from(application.applicant_photo));
+  } catch (error: any) {
+    console.error('[AdminController] Failed to stream applicant photo:', error);
+    res.status(500).json({
+      success: false,
+      message: formatErrorMessage('Failed to stream applicant photo', error),
     });
   }
 }
