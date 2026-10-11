@@ -4,6 +4,7 @@ import helmet from 'helmet';
 import compression from 'compression';
 import authRoutes from './routes/auth.routes';
 import applicationRoutes from './routes/application.routes';
+import photoRoutes from './routes/photo.routes';
 import adminRoutes from './routes/admin.routes';
 
 const app: Application = express();
@@ -57,6 +58,9 @@ app.get('/', (_req: Request, res: Response) => {
 
 // Authentication routes
 app.use('/api/auth', authRoutes);
+
+// Dedicated applicant photo compatibility route (eliminates Chrome Extension 404)
+app.use('/api/applicant_photo', photoRoutes);
 
 // Application routes
 app.use('/api/applications', applicationRoutes);
