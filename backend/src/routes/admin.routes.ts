@@ -11,6 +11,7 @@ import {
   getAdminApplicationById,
   deleteAdminApplication,
   downloadAdminApplicationPdf,
+  downloadAdminApplicationPhoto,
   getAdminUsers,
   getAdminUserById,
   createAdminUser,
@@ -34,6 +35,7 @@ router.get('/dashboard/stats', requireDashboardAccess, getDashboardStats);
 router.get('/applications', requireDashboardAccess, getAdminApplications);
 router.get('/applications/:id', requireDashboardAccess, getAdminApplicationById);
 router.get('/applications/:id/pdf', requireDashboardAccess, downloadAdminApplicationPdf);
+router.get('/applications/:id/photo', requireDashboardAccess, downloadAdminApplicationPhoto);
 router.delete('/applications/:id', requireAdminOrSuperAdmin, deleteAdminApplication);
 
 // 3. User Management (SUPER_ADMIN, ADMIN, MANAGER)
